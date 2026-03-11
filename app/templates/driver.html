@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Snømåking Drift</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+body {
+margin:0;
+font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+background:#0b0b0b;
+color:white;
+}
+
+.layout {
+display:flex;
+height:100vh;
+width:100vw;
+overflow:hidden;
+}
+
+.map-area {
+flex:2;
+position:relative;
+background:#000;
+}
+
+#map {
+height:100%;
+width:100%;
+}
+
+.progress-overlay {
+position:absolute;
+top:16px;
+right:16px;
+max-width:180px;
+z-index:1000;
+pointer-events:none;
+}
+
+.progress-overlay .card {
+backdrop-filter: blur(6px);
+background: rgba(30,30,30,0.6);
+}
+
+.panel {
+flex:1;
+background:#151515;
+display:flex;
+flex-direction:column;
+min-width:0;
+min-height:0;
+}
+
+.button-stack {
+flex:none;
+display:flex;
+flex-direction:column;
+gap:16px;
+padding:12px 20px 20px 20px;
+background:linear-gradient(to bottom, rgba(21,21,21,0.88), rgba(21,21,21,1));
+border-top:1px solid rgba(255,255,255,0.06);
+}
+
+.panel-scroll {
+flex:1;
+overflow-y:auto;
+padding:20px 20px 12px 20px;
+display:flex;
+flex-direction:column;
+gap:16px;
+min-height:0;
+}
+
+.jobs-list {
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.job-row {
+background:#1b1b1b;
+border-radius:10px;
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:4px;
+}
+
+.job-row-address {
+font-size:15px;
+font-weight:600;
+line-height:1.15;
+}
+
+.job-row-meta {
+font-size:12px;
+opacity:0.78;
+line-height:1.2;
+}
+
+.card {
+background:#1e1e1e;
+border-radius:12px;
+padding:16px;
+}
+
+.label {
+font-size:13px;
+opacity:0.7;
+margin-bottom:6px;
+}
+
+.address {
+font-size:20px;
+font-weight:600;
+line-height:1.15;
+}
+
+.customer {
+font-size:14px;
+line-height:1.25;
+opacity:0.9;
+}
+
+.alert {
+background:#ffcc00;
+color:black;
+padding:12px;
+border-radius:8px;
+display:none;
+}
+
+.button {
+width:100%;
+border:none;
+border-radius:10px;
+padding:16px;
+font-size:18px;
+cursor:pointer;
+}
+
+.start { background:#2e7dff; color:white }
+.finish { background:#2e8b57; color:white }
+
+@media (max-width: 900px) {
+body {
+height:100dvh;
+overflow:hidden;
+}
+
+.layout {
+flex-direction:column;
+height:100dvh;
+}
+
+.map-area {
+flex:none;
+height:58dvh;
+min-height:58dvh;
+}
+
+#map {
+height:100%;
+}
+
+.progress-overlay {
+right:12px;
+top:12px;
+max-width:160px;
+}
+
+.panel {
+flex:none;
+height:42dvh;
+border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.panel-scroll {
+padding:12px 12px 8px 12px;
+gap:10px;
+}
+
+.card {
+padding:12px;
+border-radius:10px;
+}
+
+.label {
+font-size:12px;
+margin-bottom:4px;
+}
+
+.address {
+font-size:15px;
+line-height:1.1;
+}
+
+#active-job .customer,
+#next-job .customer {
+font-size:12px;
+line-height:1.2;
+}
+
+.button-stack {
+position:sticky;
+bottom:0;
+padding:10px 12px 14px 12px;
+background:linear-gradient(to bottom, rgba(21,21,21,0), rgba(21,21,21,0.95) 18%, rgba(21,21,21,1) 100%);
+}
+
+.button {
+padding:13px;
+font-size:17px;
+border-radius:12px;
+}
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+.layout {
+flex-direction:row;
+}
+
+.map-area {
+flex:2.3;
+height:100vh;
+}
+
+.panel {
+flex:1;
+height:100vh;
+}
+
+.panel-scroll {
+padding:12px 12px 8px 12px;
+gap:10px;
+}
+
+.card {
+padding:10px;
+}
+
+.label {
+font-size:11px;
+margin-bottom:2px;
+}
+
+.address {
+font-size:14px;
+line-height:1.05;
+}
+
+#active-job .customer,
+#next-job .customer {
+font-size:11px;
+}
+
+.button-stack {
+position:sticky;
+bottom:0;
+gap:8px;
+align-items:flex-end;
+padding:10px 12px 12px 12px;
+}
+
+.button {
+width:220px;
+padding:10px 12px;
+font-size:15px;
+border-radius:10px;
+}
+
+.progress-overlay {
+right:10px;
+top:10px;
+max-width:150px;
+}
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+<div class="map-area">
+<div id="map"></div>
+<div class="progress-overlay">
+<div id="progress" class="card" style="padding:6px 10px;font-size:12px;"></div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-scroll">
+<div id="alert" class="alert"></div>
+
+<div id="active-job" class="card">
+<div class="label">Aktiv jobb</div>
+<div class="address">Ingen aktiv jobb</div>
+</div>
+
+<div id="next-job" class="card">
+<div class="label">Neste stopp</div>
+<div class="address">Laster...</div>
+</div>
+
+<div class="card">
+<div class="label">Dagens jobber</div>
+<div id="jobs-list" class="jobs-list">
+<div class="job-row">
+<div class="job-row-address">Ingen jobber lastet</div>
+<div class="job-row-meta">Listen fylles inn av driver-visningen.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="button-stack">
+<button class="button start" id="start-btn">Start neste jobb</button>
+<button class="button finish" id="finish-btn">Fullfør aktiv jobb</button>
+</div>
+</div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="/static/driver.js"></script>
+</body>
+</html>

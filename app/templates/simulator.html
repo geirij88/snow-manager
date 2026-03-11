@@ -1,0 +1,166 @@
+
+
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snow Manager Simulator</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0b0b0b;
+            color: white;
+        }
+
+        .layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .map-area {
+            flex: 2;
+            position: relative;
+            background: #000;
+        }
+
+        #simulator-map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .panel {
+            flex: 1;
+            background: #151515;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #2e7dff;
+            color: white;
+        }
+
+        button.secondary {
+            background: #333;
+        }
+
+        button.warn {
+            background: #dc3545;
+        }
+
+        .log {
+            font-size: 13px;
+            line-height: 1.4;
+            opacity: 0.9;
+            min-height: 120px;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .map-area {
+                height: 45vh;
+            }
+
+            .panel {
+                height: 55vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="map-area">
+            <div id="simulator-map"></div>
+        </div>
+
+        <div class="panel">
+            <h1>🧪 Simulator</h1>
+
+            <div class="card">
+                <div class="card-title">Testmodus</div>
+                <div class="card-value">Driver-simulering</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Simulert posisjon</div>
+                <div class="card-value" id="sim-position">Venter...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Avstand til neste stopp</div>
+                <div class="card-value" id="sim-distance">--</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Status</div>
+                <div class="card-value" id="sim-status">Ikke startet</div>
+            </div>
+
+            <div class="button-group">
+                <button id="sim-load-route">Last rute</button>
+                <button id="sim-focus" class="secondary">Fokus kart</button>
+                <button id="sim-move-next">Flytt til neste stopp</button>
+                <button id="sim-arrive" class="secondary">Simuler ankomst</button>
+                <button id="sim-start-job">Start jobb</button>
+                <button id="sim-complete-job" class="warn">Fullfør jobb</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Logg</div>
+                <div id="sim-log" class="log">Simulator klar.</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="/static/simulator.js"></script>
+</body>
+</html>

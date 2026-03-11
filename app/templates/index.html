@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>Snømåking Manager</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+body { font-family: Arial, sans-serif; margin: 40px; background: #f6f6f6; color: #111; }
+h1 { margin-bottom: 30px; }
+h3 { margin-top: 30px; }
+input { padding: 8px; margin: 5px 5px 5px 0; border: 1px solid #ccc; border-radius: 6px; }
+button { padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+button:hover { opacity: 0.9; }
+.form-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.address-search-wrap { position: relative; display: inline-flex; flex-direction: column; }
+.suggestions { position: absolute; top: calc(100% + 4px); left: 0; width: 360px; max-width: 90vw; background: white; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden; }
+.suggestion-item { padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 14px; line-height: 1.35; }
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover { background: #f5f5f5; }
+.order { border: 1px solid #ddd; background: white; padding: 10px; margin-top: 8px; border-radius: 8px; }
+.order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.order-address { font-size: 18px; font-weight: 700; }
+.order-meta { color: #444; margin-bottom: 8px; font-size: 14px; }
+.status { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-accepted { background: #e2e3ff; color: #3730a3; }
+.status-active { background: #d1ecf1; color: #0c5460; }
+.status-completed { background: #d4edda; color: #155724; }
+.actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.start-btn { background: #0d6efd; color: white; }
+.complete-btn { background: #198754; color: white; }
+.nav-btn { background: #6c757d; color: white; }
+.accept-btn { background: #6f42c1; color: white; }
+.delete-btn { background: #dc3545; color: white; }
+.optimize-btn { background: #198754; color: white; margin-bottom: 12px; }
+.layout { display: grid; grid-template-columns: 1.35fr 0.85fr; gap: 16px; align-items: start; }
+#map { width: 100%; aspect-ratio: 1 / 1; max-width: 520px; border: 1px solid #ddd; border-radius: 8px; background: white; }
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 1fr; }
+  #map { width: 100%; }
+}
+</style>
+</head>
+<body>
+<h1>❄️ Snømåking Manager</h1>
+
+<h3>Ny jobb</h3>
+<div class="form-row">
+  <input id="job_date" type="date" placeholder="Dato">
+  <div class="address-search-wrap">
+    <input id="address" placeholder="Adresse" autocomplete="off">
+    <div id="address-confirmation" style="display:none;font-size:13px;color:#065f46;background:#d1fae5;padding:6px 10px;border-radius:6px;margin-top:4px;"></div>
+    <div id="address-suggestions" class="suggestions" style="display:none;"></div>
+  </div>
+  <input type="hidden" id="selected_lat">
+  <input type="hidden" id="selected_lng">
+  <input id="postal_code" placeholder="Postnummer">
+  <input id="city" placeholder="By">
+  <input id="customer" placeholder="Kundenavn">
+  <input id="phone" placeholder="Telefon">
+  <button onclick="createOrder()">Legg til jobb</button>
+</div>
+
+<div class="layout">
+  <div>
+    <h3>Kø</h3>
+    <button class="optimize-btn" onclick="optimizeRouteForToday()">Optimaliser rute</button>
+    <div id="orders"></div>
+  </div>
+  <div>
+    <h3>Kart</h3>
+    <div id="map"></div>
+  </div>
+</div>
+
+<script src="/static/app.js?v=3"></script>
+</body>
+</html>
